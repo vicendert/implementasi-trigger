@@ -1,0 +1,104 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\A    // Update absensi (admin only)
+    public function update(Request $request, Absensi $absensi)
+    {
+        // Check if user is admin
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Access denied. Admin access required.');
+        }
+        
+        $data = $request->validate([
+            'karyawan_id' => 'required|exists:karyawans,id',
+            'tanggal'     => 'required|date',
+            'status'      => 'required|in:hadir,izin,sakit,alpha',
+            'keterangan'  => 'nullable|string',
+        ]);
+
+        $absensi->update($data);
+        return redirect()->route('absensi.index')->with('success', 'Absensi berhasil diupdate!');
+    }els\Karyawan;
+use Illuminate\Http\Request;
+
+class AbsensiController extends Controller
+{
+    // Menampilkan semua absensi
+    public function index()
+    {
+        $absensis = Absensi::with('karyawan')->orderBy('tanggal', 'desc')->get();
+        return view('absensi.index', compact('absensis'));
+    }
+
+    // Form tambah absensi
+    public function create()
+    {
+        $karyawans = Karyawan::orderBy('nama')->get();
+        return view('absensi.create', compact('karyawans'));
+    }
+
+    // Simpan absensi baru
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'karyawan_id' => 'required|exists:karyawans,id',
+            'tanggal'     => 'required|date',
+            'status'      => 'required|in:hadir,izin,sakit,alpha',
+            'keterangan'  => 'nullable|string',
+        ]);
+
+        Absensi::create($data);
+        return redirect()->route('absensi.index')->with('success', 'Absensi berhasil ditambahkan!');
+    }
+
+    // Show detail absensi
+    public function show(Absensi $absensi)
+    {
+        return view('absensi.show', compact('absensi'));
+    }
+
+    // Form edit absensi (admin only)
+    public function edit(Absensi $absensi)
+    {
+        // Check if user is admin
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Access denied. Admin access required.');
+        }
+        
+        $karyawans = Karyawan::orderBy('nama')->get();
+        return view('absensi.edit', compact('absensi', 'karyawans'));
+    }
+
+    // Update absensi (admin only)
+    public function update(Request $request, Absensi $absensi)
+    {
+        // Check if user is admin
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Access denied. Admin access required.');
+        }
+        
+        $data = $request->validate([
+        $data = $request->validate([
+            'karyawan_id' => 'required|exists:karyawans,id',
+            'tanggal'     => 'required|date',
+            'status'      => 'required|in:hadir,izin,sakit,alpha',
+            'keterangan'  => 'nullable|string',
+        ]);
+
+        $absensi->update($data);
+        return redirect()->route('absensi.index')->with('success', 'Absensi berhasil diupdate!');
+    }
+
+    // Hapus absensi (admin only)
+    public function destroy(Absensi $absensi)
+    {
+        // Check if user is admin
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Access denied. Admin access required.');
+        }
+        
+        $absensi->delete();
+        return redirect()->route('absensi.index')->with('success', 'Absensi berhasil dihapus!');
+    }
+}
